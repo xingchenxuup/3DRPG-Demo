@@ -46,7 +46,7 @@ namespace ARPGDemo.Skill
         {
             if (!cache.ContainsKey(className))
             {
-                Debug.Log("反射");
+                // Debug.Log("反射");
                 Type type = Type.GetType(className);
                 object instance = Activator.CreateInstance(type);
                 cache.Add(className, instance);

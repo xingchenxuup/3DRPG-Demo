@@ -11,7 +11,7 @@ namespace ARPGDemo.Skill
         /// </summary>
         public override void DeploySkill()
         {
-            Debug.Log("执行选区算法");
+            // Debug.Log("执行选区算法");
             //执行选区算法
             CalculateTargets();
             //执行影响算法

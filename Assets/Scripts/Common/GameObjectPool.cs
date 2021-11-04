@@ -119,7 +119,7 @@ namespace Common
         private IEnumerator CollectObjectDelay(GameObject go,float delay)
         {
             yield return new WaitForSeconds(delay);
-            print("破坏");
+            // print("回收对象");
             go.SetActive(false);
 
         }

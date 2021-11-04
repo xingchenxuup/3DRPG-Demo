@@ -35,6 +35,7 @@ namespace ARPGDemo.Skill//命名空间（一般格式 域名.项目名.模块）
         //单次伤害
         private void OnceDamage()
         {
+            Debug.Log("开启伤害");
             //deployer.SkillData.attackTargets-->CharacterStatus HP
             //技能攻击力：攻击比率*基础攻击力
             float atk = data.atkRatio * data.owner.GetComponent<CharacterStatus>().baseATK;

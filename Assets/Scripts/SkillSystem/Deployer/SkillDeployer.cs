@@ -49,9 +49,7 @@ namespace ARPGDemo.Skill//命名空间（一般格式 域名.项目名.模块）
         //选区
         public void CalculateTargets()
         {
-            Debug.Log(skillData.skillID);
-            Debug.Log(transform.position);
-            
+            Debug.Log("执行选区算法："+skillData.skillID+"-位置："+transform.position);
             skillData.attackTargets = selector.SelectTargets(skillData,transform);
             //*********测试**************
             foreach (var item in skillData.attackTargets)
