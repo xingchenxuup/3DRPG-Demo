@@ -2,6 +2,7 @@
 using UnityEngine;
 using Common;
 using System;
+using System.Collections.Generic;
 using ARPGDemo.Character;
 
 
@@ -14,9 +15,11 @@ namespace ARPGDemo.Skill
 	{
         //技能列表
         public SkillData[] skills;
+        public Dictionary<string, GameObject> skillSelcet;
 
         private void Start()
         {
+            skillSelcet = new Dictionary<string,GameObject>();
             for (int i = 0; i < skills.Length; i++)
             {
                 InitSkill(skills[i]);
@@ -40,6 +43,19 @@ namespace ARPGDemo.Skill
             //Instantiate(data.skillPrefab);
             Debug.Log("LOAD"+data.skillID);            
             data.owner = gameObject;
+            //xcx - 初始化选择器
+            if (data.skillSelect != null && data.skillSelect.Length > 0)
+            {
+                var obj = ResourceManager.Load<GameObject>(data.skillSelect) as GameObject;
+                Debug.Log(data.skillSelect);
+                var instantiate = Instantiate(obj, transform.position, transform.rotation) as GameObject;
+                instantiate.transform.parent = transform;
+                instantiate.transform.localPosition = Vector3.zero;
+                instantiate.transform.localRotation = Quaternion.identity;
+                instantiate.transform.localScale = Vector3.one;
+                instantiate.SetActive(false);
+                skillSelcet.Add(data.name,instantiate);
+            }
         }
 
 
@@ -96,7 +112,7 @@ namespace ARPGDemo.Skill
             //创建技能预制件
             //GameObject skillGo = Instantiate(data.skillPrefab, transform.position, transform.rotation);
             Debug.Log(data.durationTime);
-            GameObject skillGo = GameObjectPool.Instance.CreateObject(data.prefabName,data.skillPrefab, transform.position, transform.rotation);       
+            GameObject skillGo = GameObjectPool.Instance.CreateObject(data.prefabName,data.skillPrefab, data.skillPos, transform.rotation);       
             SkillDeployer deployer = skillGo.GetComponent<SkillDeployer>();
             Debug.Log(deployer.name);
             ////传递技能数据

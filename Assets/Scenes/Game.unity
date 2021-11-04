@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657874, g: 0.49641258, b: 0.5748172, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -861,6 +861,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 321917156}
     m_Modifications:
+    - target: {fileID: 3581479866401285211, guid: 49550f330e421a645a0ccc671f1f68be, type: 3}
+      propertyPath: isDrag
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3581479867095327572, guid: 49550f330e421a645a0ccc671f1f68be, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -2285,8 +2289,10 @@ MonoBehaviour:
     level: 0
     attackType: 0
     selectorType: 0
+    skillSelect: 
+    skillPos: {x: 0, y: 0, z: 0}
   - skillID: 1002
-    name: name
+    name: Skill1
     description: desc
     coolTime: 1
     coolRemain: 0
@@ -2299,7 +2305,7 @@ MonoBehaviour:
     impactType:
     - CostSP
     - Damage
-    nextBatterId: 1001
+    nextBatterId: 0
     atkRatio: 1
     durationTime: 1
     atkInterval: 1
@@ -2312,6 +2318,37 @@ MonoBehaviour:
     level: 0
     attackType: 0
     selectorType: 0
+    skillSelect: SkillSelecter
+    skillPos: {x: 0, y: 0, z: 0}
+  - skillID: 1003
+    name: Skill2
+    description: desc
+    coolTime: 1
+    coolRemain: 0
+    costSP: 0
+    attackDistance: 3
+    attackAngle: 360
+    attackTargetTags:
+    - Enemy
+    attackTargets: []
+    impactType:
+    - CostSP
+    - Damage
+    nextBatterId: 0
+    atkRatio: 1
+    durationTime: 1
+    atkInterval: 1
+    owner: {fileID: 0}
+    prefabName: FX_SKill1
+    skillPrefab: {fileID: 0}
+    animationName: Skill1
+    hitFxName: 
+    hitFxPrefab: {fileID: 0}
+    level: 0
+    attackType: 0
+    selectorType: 0
+    skillSelect: 
+    skillPos: {x: 0, y: 0, z: 0}
 --- !u!114 &6709889038065938113
 MonoBehaviour:
   m_ObjectHideFlags: 0

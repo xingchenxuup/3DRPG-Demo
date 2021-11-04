@@ -1,11 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using ARPGDemo.Character;
 using Common;
-using System;
+using UnityEngine;
 
-
-namespace ARPGDemo.Skill//命名空间（一般格式 域名.项目名.模块）
+namespace ARPGDemo.Skill //命名空间（一般格式 域名.项目名.模块）
 {
     [RequireComponent(typeof(CharacterSkillManager))]
     /// <summary>
@@ -14,6 +11,10 @@ namespace ARPGDemo.Skill//命名空间（一般格式 域名.项目名.模块）
     public class CharacterSkillSystem : MonoBehaviour
     {
         private CharacterSkillManager skillManager;
+        public CharacterSkillManager SkillManager
+        {
+            get => skillManager;
+        }
         private Animator anim;
 
         private void Start()
@@ -28,11 +29,18 @@ namespace ARPGDemo.Skill//命名空间（一般格式 域名.项目名.模块）
             //生成技能
             skillManager.GenerateSkill(skill);
         }
+
         private SkillData skill;
+
+        public SkillData CurrentSkillData
+        {
+            get => skill;
+        }
+
         public void AttackUseSkill(int skillID, bool isBatter = false)
         {
             //如果连击，则从上一个释放技能中获取连击技能编号
-            if(skill != null&& isBatter)
+            if (skill != null && isBatter)
             {
                 skillID = skill.nextBatterId;
             }
@@ -41,7 +49,8 @@ namespace ARPGDemo.Skill//命名空间（一般格式 域名.项目名.模块）
             skill = skillManager.PrepareSkill(skillID);
             if (skill == null) return;
             //播放动画
-            anim.SetTrigger(skill.animationName);
+            
+            // anim.SetTrigger(skill.animationName);
             //生成技能
             //如果单攻
             //查找目标
@@ -63,16 +72,18 @@ namespace ARPGDemo.Skill//命名空间（一般格式 域名.项目名.模块）
 
         //选中目标
         private Transform selectedTarget;
+
         private Transform SelectTaraget()
         {
             Transform[] target = new SectorAttackSelector().SelectTargets(skill, transform);
             return target.Length != 0 ? target[0] : null;
         }
+
         private void SetSelectedActiveFx(bool state)
         {
             if (selectedTarget == null) return;
-            var selected = selectedTarget.GetComponent<Character.CharacterSelected>();
-            if (selected) selected.SetSelectedActive(state);//(true改为变量)
+            var selected = selectedTarget.GetComponent<CharacterSelected>();
+            if (selected) selected.SetSelectedActive(state); //(true改为变量)
         }
 
         /// <summary>
@@ -85,11 +96,8 @@ namespace ARPGDemo.Skill//命名空间（一般格式 域名.项目名.模块）
             //--先筛选出所有可以释放的技能，在产生随机数
             var usableSkills = skillManager.skills.FindAll(s => skillManager.PrepareSkill(s.skillID) != null);
             if (usableSkills.Length == 0) return;
-            int index = UnityEngine.Random.Range(0, usableSkills.Length);
+            int index = Random.Range(0, usableSkills.Length);
             AttackUseSkill(usableSkills[index].skillID);
-
         }
     }
 }
-
-

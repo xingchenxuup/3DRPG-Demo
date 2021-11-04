@@ -57,7 +57,10 @@ namespace ARPGDemo.Skill
         public int level; 
         ///<summary>攻击类型 单攻，群攻</summary> 
         public SkillAttackType attackType;
-        /////<summary>选择类型 扇形(圆形)，矩形</summary>  
-        public SelectorType selectorType; 
+        ///<summary>选择类型 扇形(圆形)，矩形</summary>  
+        public SelectorType selectorType;
+        ///<summary>技能释放器名称</summary>  
+        public string skillSelect;
+        public Vector3 skillPos;
     }
 }
