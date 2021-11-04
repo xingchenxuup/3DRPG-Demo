@@ -13,11 +13,11 @@ namespace ARPGDemo.Character
 public class CharacterInputController : MonoBehaviour
     {
 
-        // private ETCJoystick joystick;
+        public BaseBtu joystick;
         private CharacterMotor chMotor;
         private Animator anim;
         private PlayerStatus status;
-        // private ETCButton[] skillButtons;
+        public BaseBtu[] skillButtons;
         private CharacterSkillSystem skillSystem;
 
         private void Awake()
@@ -39,18 +39,18 @@ public class CharacterInputController : MonoBehaviour
             // joystick.onMoveStart.AddListener(OnJoystickMoveStart);
             // joystick.onMoveEnd.AddListener(OnJoystickMoveEnd);
             //
-            // for(int i=0;i<skillButtons.Length;i++)
-            // {
-            //     if (skillButtons[i].name == "BaseButton")
-            //         skillButtons[i].onPressed.AddListener(OnSkillButtonPressed);
-            //     else
-            //         skillButtons[i].onDown.AddListener(OnSkillButtonDown);
-            // }
+            for(int i=0;i<skillButtons.Length;i++)
+            {
+                if (skillButtons[i].name == "UI_Attack")
+                    skillButtons[i].pointDownEvent.AddListener(OnSkillButtonPressed);
+                else
+                    skillButtons[i].pointUpEvent.AddListener(OnSkillButtonDown);
+            }
         }
 
         private float lastPressTime = -1;
         //当按住普攻键时执行
-        private void OnSkillButtonPressed()
+        private void OnSkillButtonPressed(string name)
         {
             
 
@@ -59,8 +59,8 @@ public class CharacterInputController : MonoBehaviour
 
             //间隔：当前按下时间 - 最后按下时间
             float interval = Time.time -lastPressTime;
-            if (interval < 2) return;
-            bool isBatter = interval <= 5;
+            if (interval < 1.5) return;
+            bool isBatter = interval <= 3;
             // if(interval<=5)
             //{
             //    isBatter = true;
@@ -135,14 +135,14 @@ public class CharacterInputController : MonoBehaviour
             // joystick.onMove.RemoveListener(OnJoystickMove);
             // joystick.onMoveEnd.RemoveListener(OnJoystickMoveStart);
             // joystick.onMoveEnd.RemoveListener(OnJoystickMoveEnd);
-            // for (int i = 0; i < skillButtons.Length; i++)
-            // {
-            //      if (skillButtons[i] == null) continue;
-            //     if (skillButtons[i].name == "BaseButton")
-            //         skillButtons[i].onPressed.RemoveListener(OnSkillButtonPressed);
-            //     else
-            //         skillButtons[i].onDown.RemoveListener(OnSkillButtonDown);
-            // }
+            for (int i = 0; i < skillButtons.Length; i++)
+            {
+                 if (skillButtons[i] == null) continue;
+                if (skillButtons[i].name == "BaseButton")
+                    skillButtons[i].pointDownEvent.RemoveListener(OnSkillButtonPressed);
+                else
+                    skillButtons[i].pointUpEvent.RemoveListener(OnSkillButtonDown);
+            }
         }
     }
 }

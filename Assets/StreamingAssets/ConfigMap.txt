@@ -1,0 +1,2 @@
+FX_Attack=SKill/FX_Attack
+FX_SKill1=SKill/FX_SKill1
