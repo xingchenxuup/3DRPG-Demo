@@ -49,8 +49,10 @@ namespace ARPGDemo.Skill //命名空间（一般格式 域名.项目名.模块�
             skill = skillManager.PrepareSkill(skillID);
             if (skill == null) return;
             //播放动画
-            
-            // anim.SetTrigger(skill.animationName);
+            if (skill.skillSelector.Length == 0)
+            {
+                anim.SetTrigger(skill.animationName);
+            }
             //生成技能
             //如果单攻
             //查找目标

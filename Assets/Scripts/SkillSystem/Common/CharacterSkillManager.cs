@@ -44,11 +44,15 @@ namespace ARPGDemo.Skill
             Debug.Log("LOAD"+data.skillID);            
             data.owner = gameObject;
             //xcx - 初始化选择器
-            if (data.skillSelect != null && data.skillSelect.Length > 0)
+            if (data.skillSelector != null && data.skillSelector.Length > 0)
             {
-                var obj = ResourceManager.Load<GameObject>(data.skillSelect) as GameObject;
-                Debug.Log(data.skillSelect);
-                var instantiate = Instantiate(obj, transform.position, transform.rotation) as GameObject;
+                if (transform.Find(data.skillSelector))
+                {
+                    return;
+                }
+                var obj = ResourceManager.Load<GameObject>(data.skillSelector);
+                Debug.Log(data.skillSelector);
+                var instantiate = Instantiate(obj, transform.position, transform.rotation);
                 instantiate.transform.parent = transform;
                 instantiate.transform.localPosition = Vector3.zero;
                 instantiate.transform.localRotation = Quaternion.identity;
@@ -112,7 +116,9 @@ namespace ARPGDemo.Skill
             //创建技能预制件
             //GameObject skillGo = Instantiate(data.skillPrefab, transform.position, transform.rotation);
             Debug.Log(data.durationTime);
-            GameObject skillGo = GameObjectPool.Instance.CreateObject(data.prefabName,data.skillPrefab, data.skillPos, transform.rotation);       
+            GameObject skillGo = GameObjectPool.Instance.CreateObject(data.prefabName,data.skillPrefab, data.skillPos, transform.rotation);   
+            //xcx - 重置技能释放位置
+            data.skillPos = Vector3.zero;
             SkillDeployer deployer = skillGo.GetComponent<SkillDeployer>();
             Debug.Log(deployer.name);
             ////传递技能数据

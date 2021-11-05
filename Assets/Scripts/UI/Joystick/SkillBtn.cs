@@ -31,7 +31,13 @@ public class SkillBtn : BaseBtu
     {
         if (isDrag)
         {
-            base.OnDrag(eventData);
+            if (!_canHandle) return;
+            var dis = eventData.position - _pointDownPos;
+            var clamp = Mathf.Clamp(dis.magnitude, 0f, maxRadius);
+            var normalized = clamp * dis.normalized;
+            handleTransform.localPosition = normalized;
+            _dir = normalized.normalized * (clamp/maxRadius);
+            drawEvent?.Invoke(baseTransform.name);
         }
     }
 

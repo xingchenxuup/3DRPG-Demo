@@ -14,6 +14,7 @@ namespace ARPGDemo.Character
         private PlayerStatus status;
         public BaseBtu[] skillButtons;
         private CharacterSkillSystem skillSystem;
+        private Camera mainCam;
 
         private void Awake()
         {
@@ -24,6 +25,7 @@ namespace ARPGDemo.Character
             status = GetComponent<PlayerStatus>(); //获取类
             // skillButtons = FindObjectsOfType<ETCButton>();//获取按键组
             skillSystem = GetComponent<CharacterSkillSystem>();
+            mainCam = Camera.main;
             //GetComponentInChildren
             //GetComponentInParent
         }
@@ -44,8 +46,11 @@ namespace ARPGDemo.Character
                 else
                 {
                     skillButtons[i].pointDownEvent.AddListener(OnSkillButtonDown);
-                    skillButtons[i].pointUpEvent.AddListener(OnSkillButtonUp);
-                    skillButtons[i].drawEvent.AddListener(OnSkillButtonDrag);
+                    if (((SkillBtn) skillButtons[i]).isDrag)
+                    {
+                        skillButtons[i].pointUpEvent.AddListener(OnSkillButtonUp);
+                        skillButtons[i].drawEvent.AddListener(OnSkillButtonDrag);
+                    }
                 }
             }
         }
@@ -89,6 +94,9 @@ namespace ARPGDemo.Character
                 case "Skill2":
                     id = 1003;
                     break;
+                case "Skill3":
+                    id = 1004;
+                    break;
             }
             //print(name + "+" + "打死你" + "+" + id);
             //CharacterSkillManager skillManager = GetComponent<CharacterSkillManager>();
@@ -103,70 +111,115 @@ namespace ARPGDemo.Character
 
             //}
             skillSystem.AttackUseSkill(id);
-            if (select != null && skillSystem.CurrentSkillData != null &&
-                skillSystem.CurrentSkillData.skillSelect.Length > 0)
+
+            var btn = GetBtn(name);
+            if (!((SkillBtn) btn).isDrag || skillSystem.CurrentSkillData == null)
             {
-                @select.SetActive(true);
+                return;
+            }
+
+            if (selector == null)
+            {
+                selector = skillSystem.SkillManager.skillSelcet[name];
+                selector.SetActive(true);
+            }
+            selector.SetActive(true);
+            if (selector != null && skillSystem.CurrentSkillData != null &&
+                skillSystem.CurrentSkillData.skillSelector.Length > 0)
+            {
+                var selTran = selector.GetComponent<Transform>();
+                switch (skillSystem.CurrentSkillData.selectorReleaseType)
+                {
+                    case SelectorReleaseType.Direction:
+                        selTran.GetChild(1).gameObject.SetActive(false);
+                        selTran.GetChild(1).GetComponent<RangerSelector>().enabled = true;
+                        break;
+                    case SelectorReleaseType.Range:
+                        selTran.GetChild(0).gameObject.SetActive(false);
+                        selTran.GetChild(1).gameObject.SetActive(true);
+                        selTran.GetChild(1).position = transform.position;
+                        selTran.GetChild(1).GetComponent<RangerSelector>().enabled = false;
+                        break;
+                }
             }
         }
 
-        GameObject select = null;
+        GameObject selector = null;
 
         private void OnSkillButtonDrag(string name)
         {
             var skill = skillSystem.CurrentSkillData;
-            if (select == null)
+            if (skill == null)
             {
-                select = skillSystem.SkillManager.skillSelcet[name];
-                @select.SetActive(true);
+                return;
             }
-            else if (skill != null)
+            var btn = GetBtn(name);
+            if (selector != null && btn != null)
             {
-                var SkillDir = skillButtons[1].Dir.x * Camera.main.transform.right +
-                               skillButtons[1].Dir.y * Camera.main.transform.forward;
-
-                if (SkillDir == Vector3.zero)
+                switch (skill.selectorReleaseType)
                 {
-                    SkillDir = transform.forward;
-                }
-                else
-                {
-                    SkillDir.y = 0;
+                    case SelectorReleaseType.Direction:
+                        var SkillDir = btn.Dir.x * mainCam.transform.right +
+                                       btn.Dir.y * mainCam.transform.forward;
+                        if (SkillDir == Vector3.zero)
+                        {
+                            SkillDir = transform.forward;
+                        }
+                        else
+                        {
+                            SkillDir.y = 0;
+                        }
+                        selector.transform.forward = SkillDir;
+                        skill.skillPos =
+                            selector.GetComponent<Transform>().GetChild(1).position;
+                        break;
+                    case SelectorReleaseType.Range:
+                        Vector3 skillPos = transform.position+(btn.Dir.x * mainCam.transform.right +
+                                           btn.Dir.y * mainCam.transform.forward)*skill.attackDistance;
+                        skillPos.y = 0.1f;
+                        var sel = selector.GetComponent<Transform>().GetChild(1);
+                        sel.position = skillPos;
+                        skill.skillPos =
+                            sel.position;
+                        break;
                 }
 
-                select.transform.forward = SkillDir;
-                skillSystem.CurrentSkillData.skillPos =
-                    select.GetComponent<Transform>().GetChild(0).GetChild(0).position;
+                if (skill.isStillLookSkill)
+                {
+                    transform.LookAt(skill.skillPos);
+                }
             }
         }
 
         private void OnSkillButtonUp(string name)
         {
+            if (selector)
+            {
+                selector.SetActive(false);
+                selector = null;
+            }
+            if (skillSystem.CurrentSkillData == null)
+            {
+                return;
+            }
             anim.SetTrigger("Skill1");
-            GameObject select = skillSystem.SkillManager.skillSelcet[name];
-            select.SetActive(false);
+            if (skillSystem.CurrentSkillData.isLookSkill)
+            {
+                transform.LookAt(skillSystem.CurrentSkillData.skillPos);
+            }
         }
 
-        private void OnJoystickMoveStart()
+        private BaseBtu GetBtn(string name)
         {
-            //GetComponent<Animator>().SetBool("run", true);
-            //GetComponent<PlayerStatus>().chParams.run;
-            anim.SetBool(status.chParams.run, true);
-        }
+            foreach (var skillButton in skillButtons)
+            {
+                if (skillButton.name == "UI_" + name)
+                {
+                    return skillButton;
+                }
+            }
 
-        private void OnJoystickMoveEnd()
-        {
-            //GetComponent<PlayerStatus>().chParams.run;
-            //GetComponent<Animator>().SetBool("run", true);
-            anim.SetBool(status.chParams.run, false);
-        }
-
-        private void OnJoystickMove(Vector2 dir)
-        {
-            //调用马达移动功能
-            //dir.x     左右    0      //dir.y     上下
-            //x                 y               z
-            chMotor.Movement(new Vector3(dir.x, 0, dir.y));
+            return null;
         }
 
         private void OnDisable()

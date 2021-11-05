@@ -59,8 +59,13 @@ namespace ARPGDemo.Skill
         public SkillAttackType attackType;
         ///<summary>选择类型 扇形(圆形)，矩形</summary>  
         public SelectorType selectorType;
+        public SelectorReleaseType selectorReleaseType;
         ///<summary>技能释放器名称</summary>  
-        public string skillSelect;
+        public string skillSelector;
+        ///<summary>是否面向技能</summary>
+        public bool isStillLookSkill;
+        public bool isLookSkill;
+        /// <summary>技能释放位置</summary>
         public Vector3 skillPos;
     }
 }
