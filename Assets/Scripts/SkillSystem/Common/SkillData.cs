@@ -14,9 +14,9 @@ namespace ARPGDemo.Skill
         ///<summary>技能描述</summary>
         public string description;
         ///<summary>冷却时间</summary>
-        public int coolTime;
+        public float coolTime;
         ///<summary>冷却剩余</summary>
-        public int coolRemain;
+        public float coolRemain;
         ///<summary>魔法消耗</summary>
         public int costSP;
         ///<summary>攻击距离</summary>
@@ -67,5 +67,7 @@ namespace ARPGDemo.Skill
         public bool isLookSkill;
         /// <summary>技能释放位置</summary>
         public Vector3 skillPos;
+
+        public bool isCd;
     }
 }

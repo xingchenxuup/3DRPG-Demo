@@ -98,6 +98,13 @@ namespace ARPGDemo.Character
                     id = 1004;
                     break;
             }
+            
+            //xcx-判断cd
+            if (!skillSystem.SkillManager.CanSkill(id))
+            {
+                return;
+            }
+            
             //print(name + "+" + "打死你" + "+" + id);
             //CharacterSkillManager skillManager = GetComponent<CharacterSkillManager>();
             ////准备技能（判断条件）
@@ -112,6 +119,7 @@ namespace ARPGDemo.Character
             //}
             skillSystem.AttackUseSkill(id);
 
+            //xcx-加载技能选择器
             var btn = GetBtn(name);
             if (!((SkillBtn) btn).isDrag || skillSystem.CurrentSkillData == null)
             {
@@ -193,14 +201,14 @@ namespace ARPGDemo.Character
 
         private void OnSkillButtonUp(string name)
         {
+            if (skillSystem.CurrentSkillData == null)
+            {
+                return;
+            }
             if (selector)
             {
                 selector.SetActive(false);
                 selector = null;
-            }
-            if (skillSystem.CurrentSkillData == null)
-            {
-                return;
             }
             anim.SetTrigger("Skill1");
             if (skillSystem.CurrentSkillData.isLookSkill)
@@ -236,6 +244,33 @@ namespace ARPGDemo.Character
                 else
                     skillButtons[i].pointUpEvent.RemoveListener(OnSkillButtonDown);
             }
+        }
+        
+        
+        //xcx-获取cd中的技能组件
+        public SkillBtn GetCDSkill(int id)
+        {
+            var name = "";
+            switch (id)
+            {
+                case 1002:
+                    name = "UI_Skill1";
+                    break;
+                case 1003:
+                    name = "UI_Skill2";
+                    break;
+                case 1004:
+                    name = "UI_Skill3";
+                    break;
+            }
+            foreach (var skillButton in skillButtons)
+            {
+                if (skillButton.name == name)
+                {
+                    return skillButton as SkillBtn;
+                }
+            }
+            return null;
         }
     }
 }

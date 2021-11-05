@@ -1,30 +1,34 @@
-﻿using System.Collections;
-using UnityEngine;
-using Common;
-using System;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using ARPGDemo.Character;
-
+using Common;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace ARPGDemo.Skill
 {
-	/// <summary>
-	/// 技能管理器
-	/// </summary>
-	public class CharacterSkillManager : MonoBehaviour 
-	{
+    /// <summary>
+    /// 技能管理器
+    /// </summary>
+    public class CharacterSkillManager : MonoBehaviour
+    {
         //技能列表
         public SkillData[] skills;
         public Dictionary<string, GameObject> skillSelcet;
+        
+        //xcx-获取按钮列表
+        private CharacterInputController _controller;
 
         private void Start()
         {
-            skillSelcet = new Dictionary<string,GameObject>();
+            skillSelcet = new Dictionary<string, GameObject>();
             for (int i = 0; i < skills.Length; i++)
             {
                 InitSkill(skills[i]);
                 //print(skills[i].name);
             }
+            _controller = GetComponent<CharacterInputController>();
         }
 
         //初始化技能
@@ -41,7 +45,7 @@ namespace ARPGDemo.Skill
             //仅仅根据资源名称获取资源
             data.skillPrefab = ResourceManager.Load<GameObject>(data.prefabName);
             //Instantiate(data.skillPrefab);
-            Debug.Log("LOAD"+data.skillID);            
+            Debug.Log("LOAD" + data.skillID);
             data.owner = gameObject;
             //xcx - 初始化选择器
             if (data.skillSelector != null && data.skillSelector.Length > 0)
@@ -50,6 +54,7 @@ namespace ARPGDemo.Skill
                 {
                     return;
                 }
+
                 var obj = ResourceManager.Load<GameObject>(data.skillSelector);
                 Debug.Log(data.skillSelector);
                 var instantiate = Instantiate(obj, transform.position, transform.rotation);
@@ -58,7 +63,7 @@ namespace ARPGDemo.Skill
                 instantiate.transform.localRotation = Quaternion.identity;
                 instantiate.transform.localScale = Vector3.one;
                 instantiate.SetActive(false);
-                skillSelcet.Add(data.name,instantiate);
+                skillSelcet.Add(data.name, instantiate);
             }
         }
 
@@ -100,6 +105,7 @@ namespace ARPGDemo.Skill
                 if (handler(skills[i]))
                     return skills[i];
             }
+
             return null;
         }
 
@@ -107,7 +113,6 @@ namespace ARPGDemo.Skill
 
         public void GenerateSkill(SkillData data)
         {
-
             //Debug.Log("GO" + data.skillID);
             //data.skillPrefab = Resources.Load<GameObject>("Skill/" + data.prefabName);
             //Debug.Log("GO" + data.skillPrefab.name);
@@ -116,33 +121,62 @@ namespace ARPGDemo.Skill
             //创建技能预制件
             //GameObject skillGo = Instantiate(data.skillPrefab, transform.position, transform.rotation);
             Debug.Log(data.durationTime);
-            GameObject skillGo = GameObjectPool.Instance.CreateObject(data.prefabName,data.skillPrefab, data.skillPos, transform.rotation);   
+            GameObject skillGo = GameObjectPool.Instance.CreateObject(data.prefabName, data.skillPrefab, data.skillPos,
+                transform.rotation);
             //xcx - 重置技能释放位置
             data.skillPos = Vector3.zero;
             SkillDeployer deployer = skillGo.GetComponent<SkillDeployer>();
             Debug.Log(deployer.name);
             ////传递技能数据
-            deployer.SkillData = data;//内部创建算法对象
-            deployer.DeploySkill();//内部执行算法对象
+            deployer.SkillData = data; //内部创建算法对象
+            deployer.DeploySkill(); //内部执行算法对象
 
             //销毁技能
             //Destroy(skillGo, data.durationTime);
-           
-            GameObjectPool.Instance.CollectObject(skillGo, data.durationTime);
 
-            //开启技能冷却
+            GameObjectPool.Instance.CollectObject(skillGo, data.durationTime);
+            if (data.isCd)
+            {
+                var skillBtn = _controller.GetCDSkill(data.skillID);
+                var cd = skillBtn.GetComponent<Transform>().Find("CD");
+                cd.gameObject.SetActive(true);
+                //开启技能冷却
+                StartCoroutine(CoolTimeDown(data,cd));
+            }
             StartCoroutine(CoolTimeDown(data));
+
+           
         }
 
         //技能冷却
-        private IEnumerator CoolTimeDown(SkillData data)
+        private IEnumerator CoolTimeDown(SkillData data,Transform cd = null)
         {
             data.coolRemain = data.coolTime;
             while (data.coolRemain > 0)
             {
-                yield return new WaitForSeconds(1);
-                data.coolRemain--;
+                if (cd)
+                {
+                    cd.GetComponent<Image>().fillAmount =data.coolRemain / data.coolTime;
+                    cd.GetChild(0).GetComponent<Text>().text = data.coolRemain.ToString("0.00");
+                }
+                // yield return new WaitForSeconds(1);
+                yield return null;
+                data.coolRemain -= Time.deltaTime;
+                if (cd !=null && data.coolRemain <= 0)
+                {
+                    cd.gameObject.SetActive(false);
+                }
             }
+        }
+
+        public bool CanSkill(int id)
+        {
+            var skillData = skills.Find(s => s.skillID == id);
+            if (skillData.coolRemain <= 0)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }
